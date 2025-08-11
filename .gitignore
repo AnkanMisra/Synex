@@ -1,0 +1,19 @@
+# Dependency directories
+node_modules/
+
+# Build outputs
+/dist/
+/build/
+
+# Logs
+logs/
+*.log
+
+# Environment files
+.env*
+
+# MacOS files
+.DS_Store
+
+# TypeScript cache
+*.tsbuildinfo
