@@ -1,3 +1,5 @@
+<img width="1470" height="956" alt="Screenshot 2025-08-11 at 21 57 08" src="https://github.com/user-attachments/assets/270e1776-99b9-47ec-8671-381ba5a1b985" />
+
 Didnt had time to make the readme will do this shit later on
 
 **currently phase 2**
