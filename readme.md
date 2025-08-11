@@ -9,17 +9,17 @@ but if you wana run ts:
 Clone the repo if you cant do that go fuck yourself
 
 Universal CMD:
-```
+```zsh
 pnpm install
 pnpm build
 ```
-```
+```zsh
 node bin/synex.js
 ```
 
 
 or if ur fucking stuck
-```
+```zsh
 synex --help
 ```
 
@@ -28,7 +28,7 @@ Notes
 - macOS & Linux:
   - Run these commands in your terminal (Terminal, iTerm2, GNOME Terminal, etc.).
   - To run as a global CLI, use:
-    ```
+    ```zsh
     pnpm link
     synex
     ```
@@ -36,38 +36,38 @@ Notes
 - Windows:
   - Run these commands in Command Prompt, PowerShell, or Windows Terminal.
   - If you see ```'pnpm'``` is not recognized, install pnpm globally:
-    ```
+    ```zsh
     npm install -g pnpm
     ```
   - If you see ```'node'``` is not recognized, install node globally:
-    ```
+    ```zsh
     npm install -g node
     ```
   - If you see ```'chmod'``` is not recognized, install chmod globally:
-    ```
+    ```zsh
     npm install -g chmod
     ```
   - If you see ```'synex'``` is not recognized, install synex globally:
-    ```
+    ```zsh
     pnpm link
     ```
   - If you see ```'synex'``` is not recognized, install synex globally:
-    ```
+    ```zsh
     pnpm link
     ```
   - To run as a global CLI:
-    ```
+    ```zsh
     pnpm link
     synex
     ```
 
 - Shebang Compatibility:
   - If you want to run ```bin/synex.js``` directly (e.g., ```./bin/synex.js```), make sure it starts with:
-    ```
+    ```zsh
     #!/usr/bin/env node
     ```
   - On macOS/Linux, make it executable:
-    ```
+    ```zsh
     chmod +x bin/synex.js
     ./bin/synex.js
   - On Windows, use:
