@@ -16,7 +16,14 @@ pnpm build
 ```zsh
 node bin/synex.js
 ```
-
+run the fucking backend by yourself
+```zsh
+pnpm run dev
+```
+run the fucking frontend by yourself
+```zsh
+pnpm run dev
+```
 
 or if ur fucking stuck
 ```zsh
@@ -41,11 +48,11 @@ Notes
     ```
   - If you see ```'node'``` is not recognized, install node globally:
     ```zsh
-    npm install -g node
+    # Node.js should be installed from nodejs.org, not via npm
     ```
   - If you see ```'chmod'``` is not recognized, install chmod globally:
     ```zsh
-    npm install -g chmod
+    # chmod is a system command, not an npm package
     ```
   - If you see ```'synex'``` is not recognized, install synex globally:
     ```zsh
