@@ -18,7 +18,7 @@ export default function App() {
   useEffect(() => {
     // Always show welcome screen first, regardless of API key presence
     setCurrentState('welcome');
-    
+
     // Check if user has API key for potential auto-login later
     if (hasApiKey()) {
       setIsAuthenticated(true);
@@ -27,8 +27,16 @@ export default function App() {
     // Handle Ctrl+C (SIGINT) to logout and exit
     const handleSigInt = () => {
       // Always logout on Ctrl+C, regardless of current state
-      removeApiKey();
-      exit();
+      try {
+        removeApiKey();
+      } catch (error) {
+        console.error('Failed to remove API key during exit:', error instanceof Error ? error.message : error);
+        if (error instanceof Error && error.stack) {
+          console.error('Stack trace:', error.stack);
+        }
+      } finally {
+        exit();
+      }
     };
 
     process.on('SIGINT', handleSigInt);
@@ -64,15 +72,15 @@ export default function App() {
       {currentState === 'welcome' && (
         <WelcomeScreen onLoginMethodSelected={handleLoginMethodSelected} />
       )}
-      
+
       {currentState === 'login' && loginMethod && (
-        <LoginScreen 
-          loginMethod={loginMethod} 
+        <LoginScreen
+          loginMethod={loginMethod}
           onLoginSuccess={handleLoginSuccess}
           onBack={() => setCurrentState('welcome')}
         />
       )}
-      
+
       {currentState === 'chat' && isAuthenticated && (
         <ChatInterface onLogout={handleLogout} />
       )}

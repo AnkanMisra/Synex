@@ -253,7 +253,7 @@ async function loginWithAPIKey(providedApiKey) {
   }
   if (providedApiKey) {
     if (!providedApiKey.trim()) {
-      return false;
+      throw new Error("API key cannot be empty");
     }
     try {
       const validation = await validateApiKey(providedApiKey.trim());
@@ -264,6 +264,10 @@ async function loginWithAPIKey(providedApiKey) {
         return false;
       }
     } catch (error) {
+      console.error(chalk2.red("\u274C API key validation failed:"), error.message || error);
+      if (error.stack) {
+        console.error(chalk2.dim("Stack trace:"), error.stack);
+      }
       return false;
     }
   }
@@ -433,7 +437,15 @@ function ChatInterface({ onLogout }) {
       };
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (err) {
-      setError(err.message || "Failed to send message");
+      let errorMessage;
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (typeof err === "string") {
+        errorMessage = err;
+      } else {
+        errorMessage = "Failed to send message";
+      }
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -591,8 +603,16 @@ function App() {
       setIsAuthenticated(true);
     }
     const handleSigInt = () => {
-      removeApiKey();
-      exit();
+      try {
+        removeApiKey();
+      } catch (error) {
+        console.error("Failed to remove API key during exit:", error instanceof Error ? error.message : error);
+        if (error instanceof Error && error.stack) {
+          console.error("Stack trace:", error.stack);
+        }
+      } finally {
+        exit();
+      }
     };
     process.on("SIGINT", handleSigInt);
     return () => {
@@ -628,5 +648,16 @@ function App() {
 
 // src/tui-index.tsx
 import { jsx as jsx5 } from "react/jsx-runtime";
-process.stdout.write("\x1Bc");
-render(/* @__PURE__ */ jsx5(App, {}));
+try {
+  if (process.stdout.isTTY) {
+    process.stdout.write("\x1Bc");
+  }
+  render(/* @__PURE__ */ jsx5(App, {}));
+} catch (error) {
+  console.error("Failed to start Synex TUI:", error instanceof Error ? error.message : error);
+  if (error instanceof Error && error.stack) {
+    console.error("Stack trace:", error.stack);
+  }
+  process.stderr.write("Synex TUI failed to initialize. Please check your terminal environment.\n");
+  process.exit(1);
+}

@@ -1,6 +1,16 @@
 import winston from 'winston';
+import fs from 'fs';
+import path from 'path';
 
 const logLevel = process.env.LOG_LEVEL || 'info';
+
+// Ensure logs directory exists
+const logsDir = path.join(__dirname, '..', '..', 'logs');
+try {
+  fs.mkdirSync(logsDir, { recursive: true });
+} catch (error) {
+  console.warn('Failed to create logs directory:', error);
+}
 
 export const logger = winston.createLogger({
   level: logLevel,
@@ -11,8 +21,8 @@ export const logger = winston.createLogger({
   ),
   defaultMeta: { service: 'synex-backend' },
   transports: [
-    new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'logs/combined.log' })
+    new winston.transports.File({ filename: path.join(logsDir, 'error.log'), level: 'error' }),
+    new winston.transports.File({ filename: path.join(logsDir, 'combined.log') })
   ]
 });
 

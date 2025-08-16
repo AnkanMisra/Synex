@@ -23,9 +23,9 @@ export const errorHandler = (
     },
     request: {
       method: req.method,
-      url: req.url,
+      url: req.path, // Use path instead of full URL to exclude query params
       ip: req.ip,
-      userAgent: req.get('User-Agent')
+      userAgent: req.get('User-Agent')?.substring(0, 100) // Truncate long user agents
     }
   });
 

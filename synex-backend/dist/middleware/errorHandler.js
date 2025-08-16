@@ -13,9 +13,9 @@ const errorHandler = (error, req, res, next) => {
         },
         request: {
             method: req.method,
-            url: req.url,
+            url: req.path,
             ip: req.ip,
-            userAgent: req.get('User-Agent')
+            userAgent: req.get('User-Agent')?.substring(0, 100)
         }
     });
     res.status(statusCode).json({

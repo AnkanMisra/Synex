@@ -44,16 +44,16 @@ export async function loginWithAPIKey(providedApiKey?: string): Promise<boolean>
     console.log(chalk.dim('Run: cd synex-backend && pnpm run dev'));
     return false;
   }
-  
+
   // If API key is provided (from TUI), use it directly
   if (providedApiKey) {
     if (!providedApiKey.trim()) {
-      return false;
+      throw new Error('API key cannot be empty');
     }
-    
+
     try {
       const validation = await validateApiKey(providedApiKey.trim());
-      
+
       if (validation.valid) {
         setApiKey(providedApiKey.trim());
         return true;
@@ -61,35 +61,39 @@ export async function loginWithAPIKey(providedApiKey?: string): Promise<boolean>
         return false;
       }
     } catch (error: any) {
+      console.error(chalk.red('❌ API key validation failed:'), error.message || error);
+      if (error.stack) {
+        console.error(chalk.dim('Stack trace:'), error.stack);
+      }
       return false;
     }
   }
-  
+
   // Original CLI flow for interactive input
   console.log(chalk.blue('\n🔑 OpenRouter API Key Login'));
   console.log('Please enter your OpenRouter API key.');
   console.log(chalk.dim('Get your API key at: https://openrouter.ai/keys\n'));
   console.log(chalk.green('✅ Backend connection successful'));
-  
+
   const rl = createInterface({
     input: process.stdin,
     output: process.stdout
   });
-  
+
   return new Promise((resolve) => {
     rl.question('Enter your OpenRouter API key: ', async (apiKey) => {
       rl.close();
-      
+
       if (!apiKey || apiKey.trim().length === 0) {
         console.log(chalk.red('❌ API key cannot be empty'));
         resolve(false);
         return;
       }
-      
+
       try {
         console.log('\nValidating API key...');
         const validation = await validateApiKey(apiKey.trim());
-        
+
         if (validation.valid) {
           setApiKey(apiKey.trim());
           console.log(chalk.green('✅ API key validated and saved successfully!'));

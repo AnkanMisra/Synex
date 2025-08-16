@@ -2,11 +2,29 @@
   "name": "synex",
   "version": "0.0.2",
   "description": "AI-powered CLI for developers",
+  "author": "Synex Team <contact@synex.dev>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AnkanMisra/Synex.git"
+  },
+  "homepage": "https://github.com/AnkanMisra/Synex",
+  "bugs": {
+    "url": "https://github.com/AnkanMisra/Synex/issues"
+  },
+  "keywords": [
+    "cli",
+    "ai",
+    "developer-tools",
+    "code-analysis",
+    "automation",
+    "code-review"
+  ],
   "bin": {
     "synex": "./bin/synex.js"
   },
   "scripts": {
-    "dev": "tsup src/index.ts --watch --onSuccess 'node bin/synex.js'",
+    "dev": "tsup src/tui-index.tsx --watch --format esm --out-dir bin --clean --onSuccess 'mv bin/tui-index.js bin/synex.js && node bin/synex.js'",
     "build": "tsup src/tui-index.tsx --format esm --out-dir bin --clean && mv bin/tui-index.js bin/synex.js",
     "start": "node bin/synex.js"
   },

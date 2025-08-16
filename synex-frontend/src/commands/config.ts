@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { hasApiKey, getConfigLocation, clearConfig, getDefaultModel, setDefaultModel } from '../utils/config.js';
+import { hasApiKey, getApiKey, getConfigLocation, clearConfig, getDefaultModel, setDefaultModel } from '../utils/config.js';
 import { validateApiKey } from '../utils/backend.js';
 import { loginWithAPIKey } from '../convex/auth.js';
 
@@ -55,7 +55,8 @@ async function validateConfig() {
   }
 
   try {
-    const isValid = await validateApiKey();
+    const storedApiKey = getApiKey();
+    const isValid = await validateApiKey(storedApiKey!);
     if (isValid) {
       console.log(chalk.green('✅ API key is valid'));
       console.log(chalk.dim(`   Model: ${getDefaultModel()}`));

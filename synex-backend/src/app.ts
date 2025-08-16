@@ -53,9 +53,16 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   logger.info(`Synex Backend started on port ${PORT}`, {
     environment: process.env.NODE_ENV,
-    openRouterBaseUrl: process.env.OPENROUTER_BASE_URL,
-    defaultModel: process.env.DEFAULT_MODEL
+    port: PORT
   });
+
+  // Debug-level logging for configuration (only in development)
+  if (process.env.NODE_ENV === 'development') {
+    logger.debug('Configuration loaded', {
+      openRouterBaseUrl: process.env.OPENROUTER_BASE_URL ? '[CONFIGURED]' : '[NOT SET]',
+      defaultModel: process.env.DEFAULT_MODEL ? '[CONFIGURED]' : '[NOT SET]'
+    });
+  }
 });
 
 export default app;

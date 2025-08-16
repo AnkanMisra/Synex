@@ -37,11 +37,11 @@ function ensureConfigDir(): void {
 // Load configuration from file
 export function loadConfig(): SynexConfig {
   const configPath = getConfigPath();
-  
+
   if (!existsSync(configPath)) {
     return { ...DEFAULT_CONFIG };
   }
-  
+
   try {
     const configData = readFileSync(configPath, 'utf8');
     const config = JSON.parse(configData);
@@ -56,7 +56,7 @@ export function loadConfig(): SynexConfig {
 export function saveConfig(config: SynexConfig): void {
   ensureConfigDir();
   const configPath = getConfigPath();
-  
+
   try {
     writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
   } catch (error) {

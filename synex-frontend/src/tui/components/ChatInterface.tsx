@@ -69,8 +69,16 @@ export default function ChatInterface({ onLogout }: ChatInterfaceProps) {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-    } catch (err: any) {
-      setError(err.message || 'Failed to send message');
+    } catch (err: unknown) {
+      let errorMessage: string;
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (typeof err === 'string') {
+        errorMessage = err;
+      } else {
+        errorMessage = 'Failed to send message';
+      }
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -154,10 +162,10 @@ Ctrl+C - Cancel current request`,
                 {isUser ? (
                   // User message - enhanced styling with better visual appeal
                   <Box flexDirection="column" alignItems="flex-end">
-                    <Box 
-                       borderStyle="single" 
-                       borderColor="green" 
-                       paddingX={3} 
+                    <Box
+                       borderStyle="single"
+                       borderColor="green"
+                       paddingX={3}
                        paddingY={1}
                        width={70}
                      >
@@ -172,10 +180,10 @@ Ctrl+C - Cancel current request`,
                 ) : (
                   // AI message - enhanced styling with better visual appeal
                   <Box flexDirection="column" alignItems="flex-start">
-                    <Box 
-                       borderStyle="double" 
-                       borderColor="cyan" 
-                       paddingX={3} 
+                    <Box
+                       borderStyle="double"
+                       borderColor="cyan"
+                       paddingX={3}
                        paddingY={2}
                        width={90}
                      >
@@ -198,10 +206,10 @@ Ctrl+C - Cancel current request`,
 
         {isLoading && (
           <Box flexDirection="column" alignItems="flex-start" marginBottom={2}>
-            <Box 
-              borderStyle="double" 
-              borderColor="yellow" 
-              paddingX={3} 
+            <Box
+              borderStyle="double"
+              borderColor="yellow"
+              paddingX={3}
               paddingY={2}
               width={60}
             >
@@ -220,10 +228,10 @@ Ctrl+C - Cancel current request`,
 
         {error && (
           <Box flexDirection="column" alignItems="center" marginBottom={2}>
-            <Box 
-              borderStyle="double" 
-              borderColor="red" 
-              paddingX={3} 
+            <Box
+              borderStyle="double"
+              borderColor="red"
+              paddingX={3}
               paddingY={2}
               width={80}
             >
