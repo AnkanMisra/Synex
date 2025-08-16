@@ -16,7 +16,14 @@ pnpm build
 ```zsh
 node bin/synex.js
 ```
-
+run the fucking backend by yourself
+```zsh
+pnpm run dev
+```
+run the fucking frontend by yourself
+```zsh
+pnpm run dev
+```
 
 or if ur fucking stuck
 ```zsh
