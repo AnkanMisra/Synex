@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, chmodSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
 import * as fs from 'fs';
@@ -30,7 +30,7 @@ function getConfigPath(): string {
 function ensureConfigDir(): void {
   const configDir = getConfigDir();
   if (!existsSync(configDir)) {
-    mkdirSync(configDir, { recursive: true });
+    mkdirSync(configDir, { recursive: true, mode: 0o700 });
   }
 }
 
@@ -58,7 +58,7 @@ export function saveConfig(config: SynexConfig): void {
   const configPath = getConfigPath();
 
   try {
-    writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
+    writeFileSync(configPath, JSON.stringify(config, null, 2), { encoding: 'utf8', mode: 0o600 });
   } catch (error) {
     throw new Error(`Failed to save config: ${error}`);
   }

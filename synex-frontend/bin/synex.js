@@ -31,11 +31,6 @@ var banner = [
 import { jsx, jsxs } from "react/jsx-runtime";
 var menuOptions = [
   {
-    title: "\u{1F680} Free API Login",
-    description: "Quick start with free credits",
-    value: "free"
-  },
-  {
     title: "\u{1F511} API Key Login",
     description: "Use your own API key for unlimited access",
     value: "apikey"
@@ -83,7 +78,6 @@ import { Box as Box2, Text as Text2, useInput as useInput2 } from "ink";
 import TextInput from "ink-text-input";
 
 // src/convex/auth.ts
-import { createInterface } from "readline";
 import chalk2 from "chalk";
 
 // src/utils/config.ts
@@ -103,7 +97,7 @@ function getConfigPath() {
 function ensureConfigDir() {
   const configDir = getConfigDir();
   if (!existsSync(configDir)) {
-    mkdirSync(configDir, { recursive: true });
+    mkdirSync(configDir, { recursive: true, mode: 448 });
   }
 }
 function loadConfig() {
@@ -124,7 +118,7 @@ function saveConfig(config) {
   ensureConfigDir();
   const configPath = getConfigPath();
   try {
-    writeFileSync(configPath, JSON.stringify(config, null, 2), "utf8");
+    writeFileSync(configPath, JSON.stringify(config, null, 2), { encoding: "utf8", mode: 384 });
   } catch (error) {
     throw new Error(`Failed to save config: ${error}`);
   }
@@ -243,6 +237,40 @@ async function sendChatRequest(request) {
 }
 
 // src/convex/auth.ts
+function secureInput(prompt) {
+  return new Promise((resolve) => {
+    process.stdout.write(prompt);
+    let input = "";
+    const stdin = process.stdin;
+    stdin.setRawMode(true);
+    stdin.resume();
+    stdin.setEncoding("utf8");
+    const onData = (key) => {
+      if (key === "\r" || key === "\n") {
+        stdin.setRawMode(false);
+        stdin.pause();
+        stdin.removeListener("data", onData);
+        process.stdout.write("\n");
+        resolve(input);
+      } else if (key === "") {
+        stdin.setRawMode(false);
+        stdin.pause();
+        stdin.removeListener("data", onData);
+        process.stdout.write("\n");
+        process.exit(0);
+      } else if (key === "\x7F" || key === "\b") {
+        if (input.length > 0) {
+          input = input.slice(0, -1);
+          process.stdout.write("\b \b");
+        }
+      } else if (key >= " " && key <= "~") {
+        input += key;
+        process.stdout.write("*");
+      }
+    };
+    stdin.on("data", onData);
+  });
+}
 async function loginWithAPIKey(providedApiKey) {
   const backendConnected = await testBackendConnection();
   if (!backendConnected) {
@@ -275,37 +303,33 @@ async function loginWithAPIKey(providedApiKey) {
   console.log("Please enter your OpenRouter API key.");
   console.log(chalk2.dim("Get your API key at: https://openrouter.ai/keys\n"));
   console.log(chalk2.green("\u2705 Backend connection successful"));
-  const rl = createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-  return new Promise((resolve) => {
-    rl.question("Enter your OpenRouter API key: ", async (apiKey) => {
-      rl.close();
-      if (!apiKey || apiKey.trim().length === 0) {
-        console.log(chalk2.red("\u274C API key cannot be empty"));
-        resolve(false);
-        return;
+  try {
+    const apiKey = await secureInput("Enter your OpenRouter API key: ");
+    if (!apiKey || apiKey.trim().length === 0) {
+      console.log(chalk2.red("\u274C API key cannot be empty"));
+      return false;
+    }
+    try {
+      console.log("Validating API key...");
+      const validation = await validateApiKey(apiKey.trim());
+      if (validation.valid) {
+        setApiKey(apiKey.trim());
+        console.log(chalk2.green("\u2705 API key validated and saved successfully!"));
+        console.log(chalk2.dim(`Stored in: ~/.synex/config.json`));
+        return true;
+      } else {
+        console.log(chalk2.red("\u274C Invalid API key: " + validation.message));
+        console.log(chalk2.yellow("Please check your API key and try again."));
+        return false;
       }
-      try {
-        console.log("\nValidating API key...");
-        const validation = await validateApiKey(apiKey.trim());
-        if (validation.valid) {
-          setApiKey(apiKey.trim());
-          console.log(chalk2.green("\u2705 API key validated and saved successfully!"));
-          console.log(chalk2.dim(`Stored in: ~/.synex/config.json`));
-          resolve(true);
-        } else {
-          console.log(chalk2.red("\u274C Invalid API key: " + validation.message));
-          console.log(chalk2.yellow("Please check your API key and try again."));
-          resolve(false);
-        }
-      } catch (error) {
-        console.log(chalk2.red("\u274C Error validating API key: " + error.message));
-        resolve(false);
-      }
-    });
-  });
+    } catch (error) {
+      console.log(chalk2.red("\u274C Error validating API key: " + error.message));
+      return false;
+    }
+  } catch (error) {
+    console.log(chalk2.red("\u274C Input error: " + error.message));
+    return false;
+  }
 }
 
 // src/tui/components/LoginScreen.tsx
@@ -314,23 +338,13 @@ function LoginScreen({ loginMethod, onLoginSuccess, onBack }) {
   const [apiKey, setApiKey2] = useState2("");
   const [isLoading, setIsLoading] = useState2(false);
   const [error, setError] = useState2("");
-  const [showInput, setShowInput] = useState2(loginMethod === "apikey");
+  const [showInput, setShowInput] = useState2(true);
   useInput2((input, key) => {
     if (key.escape) {
       onBack();
-    } else if (key.return && loginMethod === "free" && !isLoading) {
-      handleSubmit();
     }
   });
   const handleSubmit = async () => {
-    if (loginMethod === "free") {
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
-        onLoginSuccess();
-      }, 1e3);
-      return;
-    }
     if (!apiKey.trim()) {
       setError("Please enter your API key");
       return;
@@ -351,12 +365,8 @@ function LoginScreen({ loginMethod, onLoginSuccess, onBack }) {
     }
   };
   return /* @__PURE__ */ jsxs2(Box2, { flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", children: [
-    /* @__PURE__ */ jsx2(Box2, { borderStyle: "round", borderColor: "cyan", paddingX: 2, marginBottom: 2, children: /* @__PURE__ */ jsx2(Text2, { color: "cyan", children: loginMethod === "free" ? "\u{1F680} Free API Login" : "\u{1F511} API Key Login" }) }),
-    loginMethod === "free" ? /* @__PURE__ */ jsxs2(Box2, { flexDirection: "column", alignItems: "center", children: [
-      /* @__PURE__ */ jsx2(Box2, { marginBottom: 1, children: /* @__PURE__ */ jsx2(Text2, { children: "You'll get free credits to start using Synex!" }) }),
-      /* @__PURE__ */ jsx2(Box2, { marginBottom: 2, children: /* @__PURE__ */ jsx2(Text2, { dimColor: true, children: "Press Enter to continue with free login" }) }),
-      !isLoading ? /* @__PURE__ */ jsx2(Box2, { children: /* @__PURE__ */ jsx2(Text2, { color: "green", children: "Press Enter to login" }) }) : /* @__PURE__ */ jsx2(Text2, { color: "yellow", children: "Logging in..." })
-    ] }) : /* @__PURE__ */ jsxs2(Box2, { flexDirection: "column", alignItems: "center", width: 60, children: [
+    /* @__PURE__ */ jsx2(Box2, { borderStyle: "round", borderColor: "cyan", paddingX: 2, marginBottom: 2, children: /* @__PURE__ */ jsx2(Text2, { color: "cyan", children: "\u{1F511} API Key Login" }) }),
+    /* @__PURE__ */ jsxs2(Box2, { flexDirection: "column", alignItems: "center", width: 60, children: [
       /* @__PURE__ */ jsx2(Box2, { marginBottom: 1, children: /* @__PURE__ */ jsx2(Text2, { children: "Enter your OpenRouter API key:" }) }),
       /* @__PURE__ */ jsx2(Box2, { marginBottom: 2, children: /* @__PURE__ */ jsx2(Text2, { dimColor: true, children: "Get your API key from: https://openrouter.ai/keys" }) }),
       showInput && /* @__PURE__ */ jsxs2(Box2, { marginBottom: 1, width: "100%", children: [
@@ -378,10 +388,7 @@ function LoginScreen({ loginMethod, onLoginSuccess, onBack }) {
       ] }) }),
       isLoading && /* @__PURE__ */ jsx2(Text2, { color: "yellow", children: "Validating API key..." })
     ] }),
-    /* @__PURE__ */ jsx2(Box2, { marginTop: 2, children: /* @__PURE__ */ jsxs2(Text2, { dimColor: true, children: [
-      "Press Escape to go back, ",
-      loginMethod === "apikey" ? "Enter to login" : "Enter to continue"
-    ] }) })
+    /* @__PURE__ */ jsx2(Box2, { marginTop: 2, children: /* @__PURE__ */ jsx2(Text2, { dimColor: true, children: "Press Escape to go back, Enter to login" }) })
   ] });
 }
 
@@ -603,16 +610,7 @@ function App() {
       setIsAuthenticated(true);
     }
     const handleSigInt = () => {
-      try {
-        removeApiKey();
-      } catch (error) {
-        console.error("Failed to remove API key during exit:", error instanceof Error ? error.message : error);
-        if (error instanceof Error && error.stack) {
-          console.error("Stack trace:", error.stack);
-        }
-      } finally {
-        exit();
-      }
+      exit();
     };
     process.on("SIGINT", handleSigInt);
     return () => {
@@ -628,6 +626,11 @@ function App() {
     setCurrentState("chat");
   };
   const handleLogout = () => {
+    try {
+      removeApiKey();
+    } catch (error) {
+      console.error("Failed to remove API key during logout:", error instanceof Error ? error.message : error);
+    }
     setIsAuthenticated(false);
     setLoginMethod(null);
     setCurrentState("welcome");

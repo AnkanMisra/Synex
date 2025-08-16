@@ -6,7 +6,7 @@ import ChatInterface from './components/ChatInterface';
 import { hasApiKey, removeApiKey } from '../utils/config.js';
 
 type AppState = 'welcome' | 'login' | 'chat';
-type LoginMethod = 'free' | 'apikey';
+type LoginMethod = 'apikey';
 
 export default function App() {
   const [currentState, setCurrentState] = useState<AppState>('welcome');
@@ -24,19 +24,9 @@ export default function App() {
       setIsAuthenticated(true);
     }
 
-    // Handle Ctrl+C (SIGINT) to logout and exit
+    // Handle Ctrl+C (SIGINT) to exit without removing API key
     const handleSigInt = () => {
-      // Always logout on Ctrl+C, regardless of current state
-      try {
-        removeApiKey();
-      } catch (error) {
-        console.error('Failed to remove API key during exit:', error instanceof Error ? error.message : error);
-        if (error instanceof Error && error.stack) {
-          console.error('Stack trace:', error.stack);
-        }
-      } finally {
-        exit();
-      }
+      exit();
     };
 
     process.on('SIGINT', handleSigInt);
@@ -62,6 +52,12 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    // Clear API key on explicit logout
+    try {
+      removeApiKey();
+    } catch (error) {
+      console.error('Failed to remove API key during logout:', error instanceof Error ? error.message : error);
+    }
     setIsAuthenticated(false);
     setLoginMethod(null);
     setCurrentState('welcome');

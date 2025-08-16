@@ -2,18 +2,13 @@ import React, { useState } from 'react';
 import { Box, Text, useInput } from 'ink';
 import { SYNEX_LOGO } from '../../output/banner.js';
 
-type LoginMethod = 'free' | 'apikey';
+type LoginMethod = 'apikey';
 
 interface WelcomeScreenProps {
   onLoginMethodSelected: (method: LoginMethod) => void;
 }
 
 const menuOptions = [
-  {
-    title: '🚀 Free API Login',
-    description: 'Quick start with free credits',
-    value: 'free' as LoginMethod
-  },
   {
     title: '🔑 API Key Login',
     description: 'Use your own API key for unlimited access',

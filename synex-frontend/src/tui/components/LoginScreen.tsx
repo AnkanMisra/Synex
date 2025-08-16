@@ -3,7 +3,7 @@ import { Box, Text, useInput } from 'ink';
 import TextInput from 'ink-text-input';
 import { loginWithAPIKey } from '../../convex/auth.js';
 
-type LoginMethod = 'free' | 'apikey';
+type LoginMethod = 'apikey';
 
 interface LoginScreenProps {
   loginMethod: LoginMethod;
@@ -15,28 +15,15 @@ export default function LoginScreen({ loginMethod, onLoginSuccess, onBack }: Log
   const [apiKey, setApiKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showInput, setShowInput] = useState(loginMethod === 'apikey');
+  const [showInput, setShowInput] = useState(true);
 
   useInput((input: string, key: any) => {
     if (key.escape) {
       onBack();
-    } else if (key.return && loginMethod === 'free' && !isLoading) {
-      handleSubmit();
     }
   });
 
   const handleSubmit = async () => {
-    if (loginMethod === 'free') {
-      // For free login, we'll simulate success for now
-      // In a real implementation, this would handle free API authentication
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
-        onLoginSuccess();
-      }, 1000);
-      return;
-    }
-
     if (!apiKey.trim()) {
       setError('Please enter your API key');
       return;
@@ -66,32 +53,11 @@ export default function LoginScreen({ loginMethod, onLoginSuccess, onBack }: Log
     <Box flexDirection="column" alignItems="center" justifyContent="center" height="100%">
       <Box borderStyle="round" borderColor="cyan" paddingX={2} marginBottom={2}>
         <Text color="cyan">
-          {loginMethod === 'free' ? '🚀 Free API Login' : '🔑 API Key Login'}
+          🔑 API Key Login
         </Text>
       </Box>
 
-      {loginMethod === 'free' ? (
-        <Box flexDirection="column" alignItems="center">
-          <Box marginBottom={1}>
-            <Text>
-              You'll get free credits to start using Synex!
-            </Text>
-          </Box>
-          <Box marginBottom={2}>
-            <Text dimColor>
-              Press Enter to continue with free login
-            </Text>
-          </Box>
-          {!isLoading ? (
-            <Box>
-              <Text color="green">Press Enter to login</Text>
-            </Box>
-          ) : (
-            <Text color="yellow">Logging in...</Text>
-          )}
-        </Box>
-      ) : (
-        <Box flexDirection="column" alignItems="center" width={60}>
+      <Box flexDirection="column" alignItems="center" width={60}>
           <Box marginBottom={1}>
             <Text>
               Enter your OpenRouter API key:
@@ -128,11 +94,9 @@ export default function LoginScreen({ loginMethod, onLoginSuccess, onBack }: Log
             <Text color="yellow">Validating API key...</Text>
           )}
         </Box>
-      )}
-
       <Box marginTop={2}>
         <Text dimColor>
-          Press Escape to go back, {loginMethod === 'apikey' ? 'Enter to login' : 'Enter to continue'}
+          Press Escape to go back, Enter to login
         </Text>
       </Box>
     </Box>
