@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Text, useInput } from 'ink';
 import TextInput from 'ink-text-input';
 import { loginWithAPIKey } from '../../convex/auth.js';
+
 
 type LoginMethod = 'apikey';
 
@@ -50,54 +51,120 @@ export default function LoginScreen({ loginMethod, onLoginSuccess, onBack }: Log
 
 
   return (
-    <Box flexDirection="column" alignItems="center" justifyContent="center" height="100%">
-      <Box borderStyle="round" borderColor="cyan" paddingX={2} marginBottom={2}>
-        <Text color="cyan">
-          🔑 API Key Login
-        </Text>
-      </Box>
+    <Box flexDirection="column" height="100%">
 
-      <Box flexDirection="column" alignItems="center" width={60}>
+
+      {/* Main Content */}
+      <Box flexDirection="column" alignItems="center" justifyContent="center" flexGrow={1}>
+
+        {/* Main Login Form */}
+        <Box
+          flexDirection="column"
+          alignItems="center"
+          borderStyle="single"
+          borderColor="green"
+          paddingX={6}
+          paddingY={1}
+          width={100}
+          marginBottom={2}
+        >
           <Box marginBottom={1}>
-            <Text>
-              Enter your OpenRouter API key:
-            </Text>
-          </Box>
-          <Box marginBottom={2}>
-            <Text dimColor>
-              Get your API key from: https://openrouter.ai/keys
-            </Text>
+            <Text color="green" bold>Get Started in Seconds</Text>
           </Box>
 
-          {showInput && (
-            <Box marginBottom={1} width="100%">
-              <Text color="cyan">API Key: </Text>
-              <TextInput
-                value={apiKey}
-                onChange={setApiKey}
-                onSubmit={handleSubmit}
-                placeholder="sk-or-..."
-                mask="*"
-              />
-            </Box>
-          )}
-
-          {error && (
+          <Box flexDirection="column" alignItems="center" width="100%">
             <Box marginBottom={1}>
-              <Text color="red">
-                ❌ {error}
+              <Text color="white">
+                Enter your OpenRouter API key to unlock premium features:
               </Text>
             </Box>
-          )}
 
-          {isLoading && (
-            <Text color="yellow">Validating API key...</Text>
-          )}
+            <Box
+              marginBottom={1}
+              borderStyle="round"
+              borderColor="blue"
+              paddingX={2}
+              paddingY={1}
+              width="100%"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Box flexDirection="column" alignItems="center" justifyContent="center">
+                <Text color="blue" bold>How to get your API key:</Text>
+                <Box marginTop={1} justifyContent="center">
+                  <Text color="cyan">1. Visit: </Text>
+                  <Text color="yellow" bold>https://openrouter.ai/keys</Text>
+                </Box>
+                <Box justifyContent="center">
+                  <Text color="cyan">2. Create an account or sign in</Text>
+                </Box>
+                <Box justifyContent="center">
+                  <Text color="cyan">3. Generate a new API key</Text>
+                </Box>
+                <Box justifyContent="center">
+                  <Text color="cyan">4. Copy and paste it below</Text>
+                </Box>
+              </Box>
+            </Box>
+
+            {showInput && (
+              <Box
+                marginBottom={1}
+                width="100%"
+                borderStyle="single"
+                borderColor="cyan"
+                paddingX={2}
+                paddingY={1}
+                alignItems="center"
+              justifyContent="center"
+              >
+                <Box flexDirection="column">
+                  <Box marginBottom={1} alignItems="center" justifyContent="center">
+                    <Text color="cyan" bold>API Key:</Text>
+                  </Box>
+                  <TextInput
+                    value={apiKey}
+                    onChange={setApiKey}
+                    onSubmit={handleSubmit}
+                    placeholder="sk-or-v1-..."
+                    mask="*"
+                  />
+                </Box>
+              </Box>
+            )}
+
+            {error && (
+              <Box
+                marginBottom={2}
+                borderStyle="double"
+                borderColor="red"
+                paddingX={3}
+                paddingY={1}
+                width="100%"
+              >
+                <Box flexDirection="row" alignItems="center" justifyContent="center">
+                  <Text color="red" bold>Authentication Failed</Text>
+                </Box>
+                <Box justifyContent="center" marginTop={1}>
+                  <Text color="white">{error}</Text>
+                </Box>
+              </Box>
+            )}
+
+            {isLoading && (
+              <Box
+                borderStyle="round"
+                borderColor="yellow"
+                paddingX={3}
+                paddingY={1}
+              >
+                <Box flexDirection="row" alignItems="center">
+                  <Text color="yellow">Validating your API key...</Text>
+                </Box>
+              </Box>
+            )}
+          </Box>
         </Box>
-      <Box marginTop={2}>
-        <Text dimColor>
-          Press Escape to go back, Enter to login
-        </Text>
       </Box>
     </Box>
   );

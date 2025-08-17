@@ -4,12 +4,12 @@
 import { render } from "ink";
 
 // src/tui/App.tsx
-import { useState as useState4, useEffect as useEffect2 } from "react";
+import { useState as useState4, useEffect as useEffect3 } from "react";
 import { Box as Box4, useApp } from "ink";
 
 // src/tui/components/WelcomeScreen.tsx
 import { useState } from "react";
-import { Box, Text, useInput } from "ink";
+import { Box, Text, useInput, useStdout } from "ink";
 
 // src/output/banner.ts
 import chalk from "chalk";
@@ -31,13 +31,21 @@ var banner = [
 import { jsx, jsxs } from "react/jsx-runtime";
 var menuOptions = [
   {
-    title: "\u{1F511} API Key Login",
+    title: "API Key Login",
     description: "Use your own API key for unlimited access",
     value: "apikey"
+  },
+  {
+    title: "Guest Access (Read-only)",
+    description: "Explore limited features without an API key",
+    value: "guest"
   }
 ];
 function WelcomeScreen({ onLoginMethodSelected }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const { stdout } = useStdout();
+  const columns = stdout?.columns ?? 80;
+  const contentWidth = Math.min(60, Math.max(40, columns - 4));
   useInput((input, key) => {
     if (key.upArrow || key.leftArrow) {
       setSelectedIndex((prev) => prev > 0 ? prev - 1 : menuOptions.length - 1);
@@ -47,29 +55,65 @@ function WelcomeScreen({ onLoginMethodSelected }) {
       onLoginMethodSelected(menuOptions[selectedIndex].value);
     }
   });
-  return /* @__PURE__ */ jsxs(Box, { flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", paddingX: 4, children: [
-    /* @__PURE__ */ jsx(Box, { borderStyle: "round", borderColor: "cyan", paddingX: 2, marginBottom: 2, children: /* @__PURE__ */ jsx(Text, { color: "cyan", children: "\u273B Welcome to Synex \u273B" }) }),
-    /* @__PURE__ */ jsx(Box, { flexDirection: "column", alignItems: "center", marginBottom: 3, children: SYNEX_LOGO.map((line, index) => {
-      const colors = ["#00FFFF", "#00CED1", "#1E90FF"];
-      const colorIndex = index % colors.length;
-      return /* @__PURE__ */ jsx(Text, { color: colors[colorIndex], bold: true, children: line }, index);
-    }) }),
-    /* @__PURE__ */ jsx(Box, { marginBottom: 3, children: /* @__PURE__ */ jsx(Text, { dimColor: true, children: "AI tool for code review, analysis and smart automation." }) }),
-    /* @__PURE__ */ jsx(Box, { marginBottom: 1, children: /* @__PURE__ */ jsx(Text, { color: "cyan", children: "Select login method:" }) }),
-    /* @__PURE__ */ jsx(Box, { flexDirection: "column", alignItems: "center", marginBottom: 2, children: menuOptions.map((option, index) => {
-      const isSelected = index === selectedIndex;
-      return /* @__PURE__ */ jsx(Box, { marginBottom: 1, paddingX: 2, children: /* @__PURE__ */ jsxs(Box, { flexDirection: "row", alignItems: "center", children: [
-        /* @__PURE__ */ jsx(Text, { color: isSelected ? "cyan" : "white", children: isSelected ? "\u276F " : "  " }),
-        /* @__PURE__ */ jsx(Text, { color: isSelected ? "cyan" : "white", bold: isSelected, children: option.title }),
-        /* @__PURE__ */ jsxs(Text, { dimColor: true, children: [
-          " (",
-          option.description,
-          ")"
+  return /* @__PURE__ */ jsx(Box, { flexDirection: "column", height: "100%", children: /* @__PURE__ */ jsxs(Box, { flexDirection: "column", alignItems: "center", justifyContent: "center", flexGrow: 1, paddingX: 4, children: [
+    /* @__PURE__ */ jsxs(
+      Box,
+      {
+        flexDirection: "column",
+        alignItems: "center",
+        marginBottom: 2,
+        borderStyle: "round",
+        borderColor: "magenta",
+        paddingX: 3,
+        paddingY: 1,
+        width: contentWidth,
+        children: [
+          /* @__PURE__ */ jsx(Box, { marginBottom: 1 }),
+          SYNEX_LOGO.map((line, index) => {
+            const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7", "#DDA0DD"];
+            const colorIndex = index % colors.length;
+            return /* @__PURE__ */ jsx(Text, { color: colors[colorIndex], bold: true, children: line }, index);
+          }),
+          /* @__PURE__ */ jsx(Box, { marginTop: 1, children: /* @__PURE__ */ jsx(Text, { color: "yellow", dimColor: true, children: " Powered by Advanced AI Technology " }) })
+        ]
+      }
+    ),
+    /* @__PURE__ */ jsx(
+      Box,
+      {
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        borderStyle: "round",
+        borderColor: "blueBright",
+        paddingX: 4,
+        paddingY: 1,
+        marginBottom: 2,
+        width: contentWidth,
+        children: /* @__PURE__ */ jsxs(Box, { flexDirection: "column", alignItems: "center", justifyContent: "center", children: [
+          /* @__PURE__ */ jsx(Box, { marginBottom: 1, width: "100%", justifyContent: "center", children: /* @__PURE__ */ jsx(Text, { color: "cyan", bold: true, children: "Choose Your Authentication Method" }) }),
+          menuOptions.map((option, index) => {
+            const isSelected = index === selectedIndex;
+            return /* @__PURE__ */ jsxs(
+              Box,
+              {
+                flexDirection: "column",
+                alignItems: "center",
+                marginBottom: 1,
+                width: "100%",
+                children: [
+                  /* @__PURE__ */ jsx(Box, { width: "100%", justifyContent: "center", children: /* @__PURE__ */ jsx(Text, { color: isSelected ? "magenta" : "cyan", bold: isSelected, children: `${isSelected ? "> " : "  "}${option.title}` }) }),
+                  /* @__PURE__ */ jsx(Box, { width: "100%", justifyContent: "center", children: /* @__PURE__ */ jsx(Text, { color: isSelected ? "yellow" : "gray", dimColor: !isSelected, children: option.description }) })
+                ]
+              },
+              index
+            );
+          }),
+          /* @__PURE__ */ jsx(Box, { marginTop: 1, width: "100%", justifyContent: "center", children: /* @__PURE__ */ jsx(Text, { color: "gray", dimColor: true, children: "Use \u2191\u2193 arrows to navigate, Enter to select" }) })
         ] })
-      ] }) }, index);
-    }) }),
-    /* @__PURE__ */ jsx(Box, { marginTop: 2, children: /* @__PURE__ */ jsx(Text, { dimColor: true, children: "Use arrow keys to navigate, Enter to select, Ctrl+C to exit" }) })
-  ] });
+      }
+    )
+  ] }) });
 }
 
 // src/tui/components/LoginScreen.tsx
@@ -84,6 +128,10 @@ import chalk2 from "chalk";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
+var AVAILABLE_MODELS = [
+  { id: "openai/gpt-oss-20b:free", name: "OpenAI GPT OSS 20B (Free)" },
+  { id: "z-ai/glm-4.5-air:free", name: "Z.AI GLM 4.5 Air (Free)" }
+];
 var DEFAULT_CONFIG = {
   backendUrl: "http://localhost:3000",
   defaultModel: "openai/gpt-oss-20b:free"
@@ -144,6 +192,11 @@ function getBackendUrl() {
 function getDefaultModel() {
   const config = loadConfig();
   return config.defaultModel || DEFAULT_CONFIG.defaultModel;
+}
+function setDefaultModel(model) {
+  const config = loadConfig();
+  config.defaultModel = model;
+  saveConfig(config);
 }
 function hasApiKey() {
   return getApiKey() !== null;
@@ -364,83 +417,281 @@ function LoginScreen({ loginMethod, onLoginSuccess, onBack }) {
       setIsLoading(false);
     }
   };
-  return /* @__PURE__ */ jsxs2(Box2, { flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", children: [
-    /* @__PURE__ */ jsx2(Box2, { borderStyle: "round", borderColor: "cyan", paddingX: 2, marginBottom: 2, children: /* @__PURE__ */ jsx2(Text2, { color: "cyan", children: "\u{1F511} API Key Login" }) }),
-    /* @__PURE__ */ jsxs2(Box2, { flexDirection: "column", alignItems: "center", width: 60, children: [
-      /* @__PURE__ */ jsx2(Box2, { marginBottom: 1, children: /* @__PURE__ */ jsx2(Text2, { children: "Enter your OpenRouter API key:" }) }),
-      /* @__PURE__ */ jsx2(Box2, { marginBottom: 2, children: /* @__PURE__ */ jsx2(Text2, { dimColor: true, children: "Get your API key from: https://openrouter.ai/keys" }) }),
-      showInput && /* @__PURE__ */ jsxs2(Box2, { marginBottom: 1, width: "100%", children: [
-        /* @__PURE__ */ jsx2(Text2, { color: "cyan", children: "API Key: " }),
-        /* @__PURE__ */ jsx2(
-          TextInput,
-          {
-            value: apiKey,
-            onChange: setApiKey2,
-            onSubmit: handleSubmit,
-            placeholder: "sk-or-...",
-            mask: "*"
-          }
-        )
-      ] }),
-      error && /* @__PURE__ */ jsx2(Box2, { marginBottom: 1, children: /* @__PURE__ */ jsxs2(Text2, { color: "red", children: [
-        "\u274C ",
-        error
-      ] }) }),
-      isLoading && /* @__PURE__ */ jsx2(Text2, { color: "yellow", children: "Validating API key..." })
-    ] }),
-    /* @__PURE__ */ jsx2(Box2, { marginTop: 2, children: /* @__PURE__ */ jsx2(Text2, { dimColor: true, children: "Press Escape to go back, Enter to login" }) })
-  ] });
+  return /* @__PURE__ */ jsx2(Box2, { flexDirection: "column", height: "100%", children: /* @__PURE__ */ jsx2(Box2, { flexDirection: "column", alignItems: "center", justifyContent: "center", flexGrow: 1, children: /* @__PURE__ */ jsxs2(
+    Box2,
+    {
+      flexDirection: "column",
+      alignItems: "center",
+      borderStyle: "single",
+      borderColor: "green",
+      paddingX: 6,
+      paddingY: 1,
+      width: 100,
+      marginBottom: 2,
+      children: [
+        /* @__PURE__ */ jsx2(Box2, { marginBottom: 1, children: /* @__PURE__ */ jsx2(Text2, { color: "green", bold: true, children: "Get Started in Seconds" }) }),
+        /* @__PURE__ */ jsxs2(Box2, { flexDirection: "column", alignItems: "center", width: "100%", children: [
+          /* @__PURE__ */ jsx2(Box2, { marginBottom: 1, children: /* @__PURE__ */ jsx2(Text2, { color: "white", children: "Enter your OpenRouter API key to unlock premium features:" }) }),
+          /* @__PURE__ */ jsx2(
+            Box2,
+            {
+              marginBottom: 1,
+              borderStyle: "round",
+              borderColor: "blue",
+              paddingX: 2,
+              paddingY: 1,
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "center",
+              children: /* @__PURE__ */ jsxs2(Box2, { flexDirection: "column", alignItems: "center", justifyContent: "center", children: [
+                /* @__PURE__ */ jsx2(Text2, { color: "blue", bold: true, children: "How to get your API key:" }),
+                /* @__PURE__ */ jsxs2(Box2, { marginTop: 1, justifyContent: "center", children: [
+                  /* @__PURE__ */ jsx2(Text2, { color: "cyan", children: "1. Visit: " }),
+                  /* @__PURE__ */ jsx2(Text2, { color: "yellow", bold: true, children: "https://openrouter.ai/keys" })
+                ] }),
+                /* @__PURE__ */ jsx2(Box2, { justifyContent: "center", children: /* @__PURE__ */ jsx2(Text2, { color: "cyan", children: "2. Create an account or sign in" }) }),
+                /* @__PURE__ */ jsx2(Box2, { justifyContent: "center", children: /* @__PURE__ */ jsx2(Text2, { color: "cyan", children: "3. Generate a new API key" }) }),
+                /* @__PURE__ */ jsx2(Box2, { justifyContent: "center", children: /* @__PURE__ */ jsx2(Text2, { color: "cyan", children: "4. Copy and paste it below" }) })
+              ] })
+            }
+          ),
+          showInput && /* @__PURE__ */ jsx2(
+            Box2,
+            {
+              marginBottom: 1,
+              width: "100%",
+              borderStyle: "single",
+              borderColor: "cyan",
+              paddingX: 2,
+              paddingY: 1,
+              alignItems: "center",
+              justifyContent: "center",
+              children: /* @__PURE__ */ jsxs2(Box2, { flexDirection: "column", children: [
+                /* @__PURE__ */ jsx2(Box2, { marginBottom: 1, alignItems: "center", justifyContent: "center", children: /* @__PURE__ */ jsx2(Text2, { color: "cyan", bold: true, children: "API Key:" }) }),
+                /* @__PURE__ */ jsx2(
+                  TextInput,
+                  {
+                    value: apiKey,
+                    onChange: setApiKey2,
+                    onSubmit: handleSubmit,
+                    placeholder: "sk-or-v1-...",
+                    mask: "*"
+                  }
+                )
+              ] })
+            }
+          ),
+          error && /* @__PURE__ */ jsxs2(
+            Box2,
+            {
+              marginBottom: 2,
+              borderStyle: "double",
+              borderColor: "red",
+              paddingX: 3,
+              paddingY: 1,
+              width: "100%",
+              children: [
+                /* @__PURE__ */ jsx2(Box2, { flexDirection: "row", alignItems: "center", justifyContent: "center", children: /* @__PURE__ */ jsx2(Text2, { color: "red", bold: true, children: "Authentication Failed" }) }),
+                /* @__PURE__ */ jsx2(Box2, { justifyContent: "center", marginTop: 1, children: /* @__PURE__ */ jsx2(Text2, { color: "white", children: error }) })
+              ]
+            }
+          ),
+          isLoading && /* @__PURE__ */ jsx2(
+            Box2,
+            {
+              borderStyle: "round",
+              borderColor: "yellow",
+              paddingX: 3,
+              paddingY: 1,
+              children: /* @__PURE__ */ jsx2(Box2, { flexDirection: "row", alignItems: "center", children: /* @__PURE__ */ jsx2(Text2, { color: "yellow", children: "Validating your API key..." }) })
+            }
+          )
+        ] })
+      ]
+    }
+  ) }) });
 }
 
 // src/tui/components/ChatInterface.tsx
-import { useState as useState3 } from "react";
+import { useState as useState3, useEffect as useEffect2 } from "react";
 import { Box as Box3, Text as Text3, useInput as useInput3 } from "ink";
 import TextInput2 from "ink-text-input";
-import { jsx as jsx3, jsxs as jsxs3 } from "react/jsx-runtime";
+import { Fragment, jsx as jsx3, jsxs as jsxs3 } from "react/jsx-runtime";
 function ChatInterface({ onLogout }) {
   const [messages, setMessages] = useState3([]);
   const [currentInput, setCurrentInput] = useState3("");
   const [isLoading, setIsLoading] = useState3(false);
   const [showCommands, setShowCommands] = useState3(false);
   const [error, setError] = useState3("");
+  const [selectedModel, setSelectedModel] = useState3(getDefaultModel());
+  const [showModelSelector, setShowModelSelector] = useState3(false);
+  const [modelSelectorIndex, setModelSelectorIndex] = useState3(0);
+  const [progress, setProgress] = useState3(0);
+  const [progressText, setProgressText] = useState3("");
+  useEffect2(() => {
+    let interval;
+    if (isLoading) {
+      setProgress(0);
+      setProgressText("Initializing...");
+      interval = setInterval(() => {
+        setProgress((prev) => {
+          const newProgress = prev + Math.random() * 15 + 5;
+          if (newProgress < 30) {
+            setProgressText("Connecting to AI...");
+          } else if (newProgress < 60) {
+            setProgressText("Processing request...");
+          } else if (newProgress < 85) {
+            setProgressText("Generating response...");
+          } else {
+            setProgressText("Finalizing...");
+          }
+          return Math.min(newProgress, 90);
+        });
+      }, 200);
+    } else {
+      setProgress(0);
+      setProgressText("");
+    }
+    return () => {
+      if (interval)
+        clearInterval(interval);
+    };
+  }, [isLoading]);
   useInput3((input, key) => {
+    if (showModelSelector) {
+      if (key.upArrow) {
+        setModelSelectorIndex((prev) => Math.max(0, prev - 1));
+        return;
+      } else if (key.downArrow) {
+        setModelSelectorIndex((prev) => Math.min(AVAILABLE_MODELS.length - 1, prev + 1));
+        return;
+      } else if (key.return) {
+        const newModel = AVAILABLE_MODELS[modelSelectorIndex].id;
+        setSelectedModel(newModel);
+        setDefaultModel(newModel);
+        setShowModelSelector(false);
+        return;
+      } else if (key.escape) {
+        setShowModelSelector(false);
+        return;
+      }
+    }
     if (key.ctrl && input === "l") {
       onLogout();
-    } else if (key.ctrl && input === "h") {
+      return;
+    }
+    if (key.ctrl && input === "h") {
       setShowCommands(!showCommands);
-    } else if (key.ctrl && input === "c" && isLoading) {
+      return;
+    }
+    if (key.ctrl && (input === "m" || key.name === "m") || key.sequence === "\r" || key.ctrl && key.sequence === "\r" || key.name === "m" && key.ctrl) {
+      setShowModelSelector(!showModelSelector);
+      setModelSelectorIndex(AVAILABLE_MODELS.findIndex((m) => m.id === selectedModel));
+      return;
+    }
+    if (key.ctrl && input === "c" && isLoading) {
       setIsLoading(false);
       setError("Request cancelled");
-    }
-  });
-  const handleSubmit = async (input) => {
-    if (!input.trim() || isLoading)
       return;
+    }
+  }, { isActive: true });
+  const handleSubmit = async () => {
+    if (!currentInput.trim())
+      return;
+    if (currentInput.startsWith("/")) {
+      const parts = currentInput.trim().split(/\s+/);
+      const command = parts[0].toLowerCase();
+      const commandArgs = parts.slice(1);
+      switch (command) {
+        case "/help":
+          setShowCommands(true);
+          setCurrentInput("");
+          return;
+        case "/clear":
+          setMessages([]);
+          setCurrentInput("");
+          setIsLoading(false);
+          setError("");
+          return;
+        case "/model":
+          if (commandArgs.length === 0) {
+            setShowModelSelector(true);
+            setModelSelectorIndex(AVAILABLE_MODELS.findIndex((m) => m.id === selectedModel));
+          } else {
+            const target = commandArgs.join(" ").toLowerCase();
+            const found = AVAILABLE_MODELS.find((m) => {
+              const id = m.id.toLowerCase();
+              const name = m.name.toLowerCase();
+              return id === target || name === target || name.replace(/\s*\(.*?\)$/, "") === target || name.includes(target);
+            });
+            if (found) {
+              setSelectedModel(found.id);
+              setDefaultModel(found.id);
+              const confirmMsg = {
+                role: "assistant",
+                content: `Switched model to: ${found.name}`,
+                timestamp: /* @__PURE__ */ new Date(),
+                model: found.id
+              };
+              setMessages((prev) => [...prev, confirmMsg]);
+            } else {
+              const errMsg = {
+                role: "assistant",
+                content: `Unknown model: ${target}. Use /model to list available models.`,
+                timestamp: /* @__PURE__ */ new Date(),
+                model: selectedModel
+              };
+              setMessages((prev) => [...prev, errMsg]);
+            }
+          }
+          setCurrentInput("");
+          return;
+        case "/logout":
+          onLogout();
+          return;
+        default:
+          const errorMessage = {
+            role: "assistant",
+            content: `Unknown command: ${currentInput}
+
+Available commands:
+\u2022 /help - Show keyboard shortcuts
+\u2022 /model - Select AI model
+\u2022 /clear - Clear current conversation
+\u2022 /logout - Logout and return to welcome`,
+            timestamp: /* @__PURE__ */ new Date(),
+            model: selectedModel
+          };
+          setMessages((prev) => [...prev, errorMessage]);
+          setCurrentInput("");
+          return;
+      }
+    }
     const userMessage = {
       role: "user",
-      content: input.trim(),
-      timestamp: /* @__PURE__ */ new Date()
+      content: currentInput,
+      timestamp: /* @__PURE__ */ new Date(),
+      model: selectedModel
     };
     setMessages((prev) => [...prev, userMessage]);
     setCurrentInput("");
     setIsLoading(true);
-    setError("");
     try {
-      if (input.startsWith("/")) {
-        await handleCommand(input);
-        return;
-      }
       const response = await sendChatRequest({
         messages: [
           ...messages.map((msg) => ({ role: msg.role, content: msg.content })),
-          { role: "user", content: input.trim() }
+          { role: "user", content: currentInput.trim() }
         ],
-        model: getDefaultModel()
+        model: selectedModel
       });
+      setProgress(100);
+      setProgressText("Response received!");
+      await new Promise((resolve) => setTimeout(resolve, 300));
       const assistantMessage = {
         role: "assistant",
         content: response.message.content,
-        timestamp: /* @__PURE__ */ new Date()
+        timestamp: /* @__PURE__ */ new Date(),
+        model: response.model
       };
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (err) {
@@ -461,6 +712,8 @@ function ChatInterface({ onLogout }) {
     const cmd = command.toLowerCase();
     if (cmd === "/clear") {
       setMessages([]);
+      setIsLoading(false);
+      setError("");
     } else if (cmd === "/help") {
       const helpMessage = {
         role: "assistant",
@@ -472,6 +725,7 @@ function ChatInterface({ onLogout }) {
 Keyboard shortcuts:
 Ctrl+L - Logout
 Ctrl+H - Toggle command help
+Ctrl+M - Select AI model
 Ctrl+C - Cancel current request`,
         timestamp: /* @__PURE__ */ new Date()
       };
@@ -489,111 +743,277 @@ Ctrl+C - Cancel current request`,
     setIsLoading(false);
   };
   return /* @__PURE__ */ jsxs3(Box3, { flexDirection: "column", height: "100%", children: [
-    /* @__PURE__ */ jsx3(Box3, { borderStyle: "double", borderColor: "cyan", paddingX: 3, paddingY: 1, marginBottom: 1, children: /* @__PURE__ */ jsxs3(Box3, { flexDirection: "column", children: [
-      /* @__PURE__ */ jsx3(Box3, { flexDirection: "row", justifyContent: "center", marginBottom: 1, children: /* @__PURE__ */ jsx3(Text3, { color: "cyan", bold: true, children: "\u{1F4AC} Synex Chat Interface" }) }),
-      /* @__PURE__ */ jsx3(Box3, { flexDirection: "row", justifyContent: "center", children: /* @__PURE__ */ jsx3(Text3, { dimColor: true, children: "Ctrl+H for help | Ctrl+L to logout" }) })
-    ] }) }),
-    showCommands && /* @__PURE__ */ jsxs3(Box3, { borderStyle: "round", borderColor: "yellow", paddingX: 2, paddingY: 1, marginBottom: 1, children: [
-      /* @__PURE__ */ jsx3(Box3, { marginBottom: 1, children: /* @__PURE__ */ jsx3(Text3, { color: "yellow", bold: true, children: "\u{1F4CB} Available Commands:" }) }),
-      /* @__PURE__ */ jsxs3(Box3, { flexDirection: "column", paddingLeft: 1, children: [
-        /* @__PURE__ */ jsxs3(Text3, { children: [
-          "\u2022 ",
-          /* @__PURE__ */ jsx3(Text3, { color: "cyan", children: "/clear" }),
-          " - Clear chat history"
-        ] }),
-        /* @__PURE__ */ jsxs3(Text3, { children: [
-          "\u2022 ",
-          /* @__PURE__ */ jsx3(Text3, { color: "cyan", children: "/help" }),
-          " - Show this help message"
-        ] }),
-        /* @__PURE__ */ jsxs3(Text3, { children: [
-          "\u2022 ",
-          /* @__PURE__ */ jsx3(Text3, { color: "cyan", children: "/logout" }),
-          " - Logout and return to welcome screen"
+    showCommands && /* @__PURE__ */ jsx3(
+      Box3,
+      {
+        borderStyle: "double",
+        borderColor: "yellow",
+        paddingX: 3,
+        paddingY: 2,
+        marginBottom: 2,
+        marginX: 2,
+        children: /* @__PURE__ */ jsxs3(Box3, { flexDirection: "column", children: [
+          /* @__PURE__ */ jsx3(Box3, { marginBottom: 2, justifyContent: "center", children: /* @__PURE__ */ jsx3(Text3, { color: "yellow", bold: true, children: " Command Reference Guide" }) }),
+          /* @__PURE__ */ jsxs3(Box3, { flexDirection: "column", paddingLeft: 2, children: [
+            /* @__PURE__ */ jsx3(Box3, { marginBottom: 1, children: /* @__PURE__ */ jsx3(Text3, { color: "cyan", bold: true, children: "Chat Commands:" }) }),
+            /* @__PURE__ */ jsxs3(Text3, { children: [
+              "  \u2022 ",
+              /* @__PURE__ */ jsx3(Text3, { color: "green", children: "/clear" }),
+              " - Clear entire chat history"
+            ] }),
+            /* @__PURE__ */ jsxs3(Text3, { children: [
+              "  \u2022 ",
+              /* @__PURE__ */ jsx3(Text3, { color: "green", children: "/help" }),
+              " - Show this comprehensive help"
+            ] }),
+            /* @__PURE__ */ jsxs3(Text3, { children: [
+              "  \u2022 ",
+              /* @__PURE__ */ jsx3(Text3, { color: "green", children: "/model <name/id>" }),
+              " - Quick switch AI model"
+            ] }),
+            /* @__PURE__ */ jsxs3(Text3, { children: [
+              "  \u2022 ",
+              /* @__PURE__ */ jsx3(Text3, { color: "green", children: "/logout" }),
+              " - Logout and return to welcome"
+            ] }),
+            /* @__PURE__ */ jsx3(Box3, { marginTop: 1, marginBottom: 1, children: /* @__PURE__ */ jsx3(Text3, { color: "cyan", bold: true, children: "Keyboard Shortcuts:" }) }),
+            /* @__PURE__ */ jsxs3(Text3, { children: [
+              "  \u2022 ",
+              /* @__PURE__ */ jsx3(Text3, { color: "magenta", children: "Ctrl+H" }),
+              " - Toggle this help panel"
+            ] }),
+            /* @__PURE__ */ jsxs3(Text3, { children: [
+              "  \u2022 ",
+              /* @__PURE__ */ jsx3(Text3, { color: "magenta", children: "Ctrl+M" }),
+              " - Open model selector"
+            ] }),
+            /* @__PURE__ */ jsxs3(Text3, { children: [
+              "  \u2022 ",
+              /* @__PURE__ */ jsx3(Text3, { color: "magenta", children: "Ctrl+L" }),
+              " - Quick logout"
+            ] }),
+            /* @__PURE__ */ jsxs3(Text3, { children: [
+              "  \u2022 ",
+              /* @__PURE__ */ jsx3(Text3, { color: "magenta", children: "Ctrl+C" }),
+              " - Exit application"
+            ] })
+          ] }),
+          /* @__PURE__ */ jsx3(Box3, { marginTop: 2, justifyContent: "center", children: /* @__PURE__ */ jsx3(Text3, { color: "yellow", dimColor: true, children: " Press Ctrl+H again to hide this panel" }) })
         ] })
+      }
+    ),
+    showModelSelector && /* @__PURE__ */ jsx3(
+      Box3,
+      {
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100%",
+        position: "absolute",
+        width: "100%",
+        children: /* @__PURE__ */ jsx3(
+          Box3,
+          {
+            borderStyle: "double",
+            borderColor: "green",
+            paddingX: 6,
+            paddingY: 3,
+            width: 60,
+            children: /* @__PURE__ */ jsxs3(Box3, { flexDirection: "column", children: [
+              /* @__PURE__ */ jsx3(Box3, { marginBottom: 2, justifyContent: "center", children: /* @__PURE__ */ jsx3(Text3, { color: "green", bold: true, children: " AI Model Selection Center" }) }),
+              /* @__PURE__ */ jsx3(Box3, { flexDirection: "column", alignItems: "center", children: AVAILABLE_MODELS.map((model, index) => {
+                const isSelected = index === modelSelectorIndex;
+                const isCurrent = model.id === selectedModel;
+                return /* @__PURE__ */ jsx3(
+                  Box3,
+                  {
+                    marginBottom: 1,
+                    borderStyle: isSelected ? "single" : void 0,
+                    borderColor: isSelected ? "cyan" : void 0,
+                    paddingX: isSelected ? 2 : 0,
+                    paddingY: isSelected ? 1 : 0,
+                    children: /* @__PURE__ */ jsxs3(Box3, { flexDirection: "row", alignItems: "center", children: [
+                      /* @__PURE__ */ jsx3(Text3, { color: isSelected ? "cyan" : "white", bold: true, children: isSelected ? "> " : "  " }),
+                      /* @__PURE__ */ jsx3(Text3, { color: isSelected ? "cyan" : "white", bold: isSelected, children: model.name }),
+                      isCurrent && /* @__PURE__ */ jsx3(Text3, { color: "yellow", bold: true, children: " (Active)" })
+                    ] })
+                  },
+                  model.id
+                );
+              }) }),
+              /* @__PURE__ */ jsx3(Box3, { marginTop: 2, justifyContent: "center", children: /* @__PURE__ */ jsx3(Text3, { color: "green", dimColor: true, children: " Use \u2191\u2193 to navigate \u2022 Enter to select \u2022 Escape to cancel" }) })
+            ] })
+          }
+        )
+      }
+    ),
+    /* @__PURE__ */ jsxs3(Box3, { flexDirection: "column", flexGrow: 1, paddingX: 3, paddingY: 2, children: [
+      messages.length === 0 ? /* @__PURE__ */ jsx3(Box3, { flexDirection: "column", flexGrow: 1 }) : /* @__PURE__ */ jsxs3(Fragment, { children: [
+        messages.map((message, index) => {
+          const isUser = message.role === "user";
+          const timestamp = message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+          return /* @__PURE__ */ jsx3(Box3, { marginBottom: 1, width: "100%", height: 20, children: /* @__PURE__ */ jsx3(Box3, { flexDirection: "row", width: "100%", height: 20, children: isUser ? (
+            // User Message on Right
+            /* @__PURE__ */ jsxs3(Fragment, { children: [
+              /* @__PURE__ */ jsx3(Box3, { flexGrow: 1 }),
+              /* @__PURE__ */ jsxs3(Box3, { width: "50%", height: 20, borderStyle: "single", borderColor: "green", paddingX: 2, paddingY: 1, children: [
+                /* @__PURE__ */ jsxs3(Box3, { flexDirection: "row", alignItems: "center", height: 1, children: [
+                  /* @__PURE__ */ jsx3(Text3, { color: "green", bold: true, children: "You" }),
+                  /* @__PURE__ */ jsx3(Box3, { flexGrow: 1 }),
+                  /* @__PURE__ */ jsx3(Text3, { color: "gray", dimColor: true, children: timestamp })
+                ] }),
+                /* @__PURE__ */ jsx3(Box3, { height: 17, overflow: "hidden", children: /* @__PURE__ */ jsx3(Text3, { color: "white", wrap: "wrap", children: message.content }) })
+              ] })
+            ] })
+          ) : (
+            // AI Message on Left
+            /* @__PURE__ */ jsxs3(Fragment, { children: [
+              /* @__PURE__ */ jsxs3(Box3, { width: "50%", height: 20, borderStyle: "single", borderColor: "cyan", paddingX: 2, paddingY: 1, children: [
+                /* @__PURE__ */ jsxs3(Box3, { flexDirection: "row", alignItems: "center", height: 1, children: [
+                  /* @__PURE__ */ jsx3(Text3, { color: "cyan", bold: true, children: "AI" }),
+                  message.model && /* @__PURE__ */ jsxs3(Text3, { color: "yellow", dimColor: true, children: [
+                    " \u2022 ",
+                    AVAILABLE_MODELS.find((m) => m.id === message.model)?.name || message.model
+                  ] }),
+                  /* @__PURE__ */ jsx3(Box3, { flexGrow: 1 }),
+                  /* @__PURE__ */ jsx3(Text3, { color: "gray", dimColor: true, children: timestamp })
+                ] }),
+                /* @__PURE__ */ jsx3(Box3, { height: 17, overflow: "hidden", children: /* @__PURE__ */ jsx3(Text3, { color: "white", wrap: "wrap", children: message.content }) })
+              ] }),
+              /* @__PURE__ */ jsx3(Box3, { flexGrow: 1 })
+            ] })
+          ) }) }, index);
+        }),
+        isLoading && /* @__PURE__ */ jsx3(Box3, { marginBottom: 3, children: /* @__PURE__ */ jsx3(Box3, { flexDirection: "column", alignItems: "flex-start", children: /* @__PURE__ */ jsxs3(
+          Box3,
+          {
+            borderStyle: "double",
+            borderColor: "cyan",
+            paddingX: 4,
+            paddingY: 2,
+            width: 85,
+            children: [
+              /* @__PURE__ */ jsxs3(Box3, { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 1, children: [
+                /* @__PURE__ */ jsxs3(Box3, { flexDirection: "row", alignItems: "center", children: [
+                  /* @__PURE__ */ jsx3(Text3, { color: "cyan", bold: true, children: "AI Assistant" }),
+                  /* @__PURE__ */ jsxs3(Text3, { color: "yellow", dimColor: true, children: [
+                    " \u2022 ",
+                    selectedModel
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsx3(Text3, { color: "gray", dimColor: true, children: (/* @__PURE__ */ new Date()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) })
+              ] }),
+              /* @__PURE__ */ jsx3(
+                Box3,
+                {
+                  paddingX: 2,
+                  paddingY: 1,
+                  borderStyle: "single",
+                  borderColor: "cyan",
+                  children: /* @__PURE__ */ jsxs3(Box3, { flexDirection: "column", children: [
+                    /* @__PURE__ */ jsx3(Text3, { color: "cyan", children: progressText }),
+                    /* @__PURE__ */ jsx3(Box3, { marginTop: 1, children: /* @__PURE__ */ jsxs3(Box3, { flexDirection: "row", alignItems: "flex-start", children: [
+                      /* @__PURE__ */ jsx3(Text3, { color: "cyan", children: "Progress: " }),
+                      /* @__PURE__ */ jsx3(Box3, { marginLeft: 2, children: /* @__PURE__ */ jsx3(Box3, { height: 10, width: 3, borderStyle: "single", borderColor: "gray", flexDirection: "column", justifyContent: "flex-end", children: /* @__PURE__ */ jsx3(Box3, { height: Math.floor(progress * 10 / 100), backgroundColor: "cyan", width: 1, children: /* @__PURE__ */ jsx3(Text3, { children: " " }) }) }) }),
+                      /* @__PURE__ */ jsx3(Box3, { marginLeft: 2, children: /* @__PURE__ */ jsxs3(Text3, { color: "yellow", children: [
+                        Math.floor(progress),
+                        "%"
+                      ] }) })
+                    ] }) })
+                  ] })
+                }
+              ),
+              /* @__PURE__ */ jsx3(Box3, { marginTop: 1, justifyContent: "center", children: /* @__PURE__ */ jsx3(Text3, { color: "cyan", dimColor: true, children: "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500" }) })
+            ]
+          }
+        ) }) })
       ] }),
-      /* @__PURE__ */ jsx3(Box3, { marginTop: 1, children: /* @__PURE__ */ jsx3(Text3, { dimColor: true, children: "Press Ctrl+H to hide this help" }) })
-    ] }),
-    /* @__PURE__ */ jsxs3(Box3, { flexDirection: "column", flexGrow: 1, paddingX: 2, paddingY: 1, children: [
-      messages.length === 0 ? /* @__PURE__ */ jsx3(Box3, { justifyContent: "center", alignItems: "center", height: "100%", children: /* @__PURE__ */ jsx3(Text3, { dimColor: true, children: "Start a conversation by typing a message below..." }) }) : messages.map((message, index) => {
-        const isUser = message.role === "user";
-        return /* @__PURE__ */ jsx3(Box3, { marginBottom: 2, children: isUser ? (
-          // User message - enhanced styling with better visual appeal
-          /* @__PURE__ */ jsx3(Box3, { flexDirection: "column", alignItems: "flex-end", children: /* @__PURE__ */ jsxs3(
-            Box3,
-            {
-              borderStyle: "single",
-              borderColor: "green",
-              paddingX: 3,
-              paddingY: 1,
-              width: 70,
-              children: [
-                /* @__PURE__ */ jsx3(Box3, { marginBottom: 1, children: /* @__PURE__ */ jsx3(Text3, { color: "green", bold: true, children: "\u{1F464} You" }) }),
-                /* @__PURE__ */ jsx3(Box3, { paddingLeft: 1, children: /* @__PURE__ */ jsx3(Text3, { color: "white", wrap: "wrap", children: message.content }) })
-              ]
-            }
-          ) })
-        ) : (
-          // AI message - enhanced styling with better visual appeal
-          /* @__PURE__ */ jsx3(Box3, { flexDirection: "column", alignItems: "flex-start", children: /* @__PURE__ */ jsxs3(
-            Box3,
-            {
-              borderStyle: "double",
-              borderColor: "cyan",
-              paddingX: 3,
-              paddingY: 2,
-              width: 90,
-              children: [
-                /* @__PURE__ */ jsx3(Box3, { marginBottom: 1, children: /* @__PURE__ */ jsx3(Text3, { color: "cyan", bold: true, children: "\u{1F916} AI Assistant" }) }),
-                /* @__PURE__ */ jsx3(Box3, { paddingLeft: 1, children: /* @__PURE__ */ jsx3(Text3, { color: "white", wrap: "wrap", children: message.content }) }),
-                /* @__PURE__ */ jsx3(Box3, { marginTop: 1, paddingLeft: 1, children: /* @__PURE__ */ jsx3(Text3, { dimColor: true, children: "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500" }) })
-              ]
-            }
-          ) })
-        ) }, index);
-      }),
-      isLoading && /* @__PURE__ */ jsx3(Box3, { flexDirection: "column", alignItems: "flex-start", marginBottom: 2, children: /* @__PURE__ */ jsxs3(
-        Box3,
-        {
-          borderStyle: "double",
-          borderColor: "yellow",
-          paddingX: 3,
-          paddingY: 2,
-          width: 60,
-          children: [
-            /* @__PURE__ */ jsx3(Box3, { marginBottom: 1, children: /* @__PURE__ */ jsx3(Text3, { color: "yellow", bold: true, children: "\u{1F916} AI Assistant" }) }),
-            /* @__PURE__ */ jsx3(Box3, { paddingLeft: 1, children: /* @__PURE__ */ jsx3(Text3, { color: "white", children: "Thinking and processing your request..." }) }),
-            /* @__PURE__ */ jsx3(Box3, { marginTop: 1, paddingLeft: 1, children: /* @__PURE__ */ jsx3(Text3, { color: "yellow", children: "\u26A1 \u26A1 \u26A1" }) })
-          ]
-        }
-      ) }),
-      error && /* @__PURE__ */ jsx3(Box3, { flexDirection: "column", alignItems: "center", marginBottom: 2, children: /* @__PURE__ */ jsxs3(
+      error && /* @__PURE__ */ jsx3(Box3, { flexDirection: "column", alignItems: "center", marginBottom: 3, children: /* @__PURE__ */ jsxs3(
         Box3,
         {
           borderStyle: "double",
           borderColor: "red",
-          paddingX: 3,
-          paddingY: 2,
-          width: 80,
+          paddingX: 4,
+          paddingY: 3,
+          width: 85,
           children: [
-            /* @__PURE__ */ jsx3(Box3, { marginBottom: 1, children: /* @__PURE__ */ jsx3(Text3, { color: "red", bold: true, children: "\u274C Error" }) }),
-            /* @__PURE__ */ jsx3(Box3, { paddingLeft: 1, children: /* @__PURE__ */ jsx3(Text3, { color: "white", wrap: "wrap", children: error }) })
+            /* @__PURE__ */ jsxs3(Box3, { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 2, children: [
+              /* @__PURE__ */ jsx3(Box3, { flexDirection: "row", alignItems: "center", children: /* @__PURE__ */ jsx3(Text3, { color: "red", bold: true, children: "Error Occurred" }) }),
+              /* @__PURE__ */ jsx3(Text3, { color: "gray", dimColor: true, children: (/* @__PURE__ */ new Date()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) })
+            ] }),
+            /* @__PURE__ */ jsx3(
+              Box3,
+              {
+                paddingX: 3,
+                paddingY: 2,
+                borderStyle: "single",
+                borderColor: "red",
+                children: /* @__PURE__ */ jsx3(Text3, { color: "white", wrap: "wrap", children: error })
+              }
+            ),
+            /* @__PURE__ */ jsxs3(Box3, { marginTop: 2, flexDirection: "column", alignItems: "center", children: [
+              /* @__PURE__ */ jsx3(Text3, { color: "yellow", dimColor: true, children: "Troubleshooting Tips:" }),
+              /* @__PURE__ */ jsxs3(Box3, { flexDirection: "column", paddingLeft: 2, marginTop: 1, children: [
+                /* @__PURE__ */ jsx3(Text3, { color: "cyan", dimColor: true, children: "\u2022 Check your internet connection" }),
+                /* @__PURE__ */ jsx3(Text3, { color: "green", dimColor: true, children: "\u2022 Verify your API key is valid" }),
+                /* @__PURE__ */ jsx3(Text3, { color: "magenta", dimColor: true, children: "\u2022 Try a different model if available" })
+              ] }),
+              /* @__PURE__ */ jsx3(Box3, { marginTop: 2, children: /* @__PURE__ */ jsx3(Text3, { color: "red", dimColor: true, children: "Please try again or use /help for assistance" }) })
+            ] })
           ]
         }
       ) })
     ] }),
-    /* @__PURE__ */ jsx3(Box3, { borderStyle: "round", borderColor: "cyan", paddingX: 2, paddingY: 1, children: /* @__PURE__ */ jsxs3(Box3, { flexDirection: "row", alignItems: "center", children: [
-      /* @__PURE__ */ jsx3(Text3, { color: "cyan", children: "\u{1F4AC} " }),
-      /* @__PURE__ */ jsx3(Box3, { flexGrow: 1, children: /* @__PURE__ */ jsx3(
-        TextInput2,
+    /* @__PURE__ */ jsxs3(Box3, { flexDirection: "column", paddingX: 3, paddingY: 2, children: [
+      currentInput.startsWith("/") && /* @__PURE__ */ jsxs3(
+        Box3,
         {
-          value: currentInput,
-          onChange: setCurrentInput,
-          onSubmit: handleSubmit,
-          placeholder: "Type your message or /help for commands..."
+          borderStyle: "round",
+          borderColor: "yellow",
+          paddingX: 3,
+          paddingY: 1,
+          marginBottom: 1,
+          children: [
+            /* @__PURE__ */ jsx3(Text3, { color: "yellow", bold: true, children: "Command Palette" }),
+            /* @__PURE__ */ jsxs3(Box3, { flexDirection: "column", paddingLeft: 2, marginTop: 1, children: [
+              /* @__PURE__ */ jsx3(Text3, { color: "cyan", children: "\u2022 /help - Show keyboard shortcuts" }),
+              /* @__PURE__ */ jsx3(Text3, { color: "green", children: "\u2022 /clear - Clear current conversation" }),
+              /* @__PURE__ */ jsx3(Text3, { color: "green", children: "\u2022 /model - Select AI model" }),
+              /* @__PURE__ */ jsx3(Text3, { color: "magenta", children: "\u2022 /logout - Logout and return to welcome" })
+            ] })
+          ]
         }
-      ) })
-    ] }) })
+      ),
+      /* @__PURE__ */ jsxs3(
+        Box3,
+        {
+          borderStyle: "single",
+          borderColor: currentInput.startsWith("/") ? "yellow" : "blue",
+          paddingX: 3,
+          paddingY: 2,
+          minHeight: 5,
+          flexDirection: "column",
+          children: [
+            /* @__PURE__ */ jsx3(Box3, { flexGrow: 1, children: /* @__PURE__ */ jsx3(
+              TextInput2,
+              {
+                value: currentInput,
+                onChange: setCurrentInput,
+                onSubmit: handleSubmit,
+                placeholder: currentInput.startsWith("/") ? "Type a command... (e.g., /help, /clear)" : "Type your message here... (Press Enter to send)"
+              }
+            ) }),
+            /* @__PURE__ */ jsx3(
+              Box3,
+              {
+                marginTop: 1,
+                justifyContent: "flex-start",
+                children: /* @__PURE__ */ jsx3(Text3, { color: "cyan", dimColor: true, children: selectedModel })
+              }
+            )
+          ]
+        }
+      )
+    ] })
   ] });
 }
 
@@ -604,7 +1024,7 @@ function App() {
   const [loginMethod, setLoginMethod] = useState4(null);
   const [isAuthenticated, setIsAuthenticated] = useState4(false);
   const { exit } = useApp();
-  useEffect2(() => {
+  useEffect3(() => {
     setCurrentState("welcome");
     if (hasApiKey()) {
       setIsAuthenticated(true);

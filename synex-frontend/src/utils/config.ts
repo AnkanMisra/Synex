@@ -10,6 +10,12 @@ interface SynexConfig {
   defaultModel?: string;
 }
 
+// Available models
+export const AVAILABLE_MODELS = [
+  { id: 'openai/gpt-oss-20b:free', name: 'OpenAI GPT OSS 20B (Free)' },
+  { id: 'z-ai/glm-4.5-air:free', name: 'Z.AI GLM 4.5 Air (Free)' }
+];
+
 // Default configuration
 const DEFAULT_CONFIG: SynexConfig = {
   backendUrl: 'http://localhost:3000',

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Box, Text, useInput } from 'ink';
+import { Box, Text, useInput, useStdout } from 'ink';
 import { SYNEX_LOGO } from '../../output/banner.js';
 
-type LoginMethod = 'apikey';
+
+type LoginMethod = 'apikey' | 'guest';
 
 interface WelcomeScreenProps {
   onLoginMethodSelected: (method: LoginMethod) => void;
@@ -10,14 +11,24 @@ interface WelcomeScreenProps {
 
 const menuOptions = [
   {
-    title: '🔑 API Key Login',
+    title: 'API Key Login',
     description: 'Use your own API key for unlimited access',
     value: 'apikey' as LoginMethod
+  },
+  {
+    title: 'Guest Access (Read-only)',
+    description: 'Explore limited features without an API key',
+    value: 'guest' as LoginMethod
   }
 ];
 
 export default function WelcomeScreen({ onLoginMethodSelected }: WelcomeScreenProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
+
+  // Responsive width based on terminal size
+  const { stdout } = useStdout();
+  const columns = stdout?.columns ?? 80;
+  const contentWidth = Math.min(60, Math.max(40, columns - 4));
 
   useInput((input: string, key: any) => {
     if (key.upArrow || key.leftArrow) {
@@ -28,66 +39,87 @@ export default function WelcomeScreen({ onLoginMethodSelected }: WelcomeScreenPr
       onLoginMethodSelected(menuOptions[selectedIndex].value);
     }
   });
-
   return (
-    <Box flexDirection="column" alignItems="center" justifyContent="center" height="100%" paddingX={4}>
-      {/* Welcome Box */}
-      <Box borderStyle="round" borderColor="cyan" paddingX={2} marginBottom={2}>
-        <Text color="cyan">✻ Welcome to Synex ✻</Text>
-      </Box>
+    <Box flexDirection="column" height="100%">
+      {/* Main Content */}
+      <Box flexDirection="column" alignItems="center" justifyContent="center" flexGrow={1} paddingX={4}>
+        {/* Enhanced Logo with Animation Effect */}
+        <Box
+          flexDirection="column"
+          alignItems="center"
+          marginBottom={2}
+          borderStyle="round"
+          borderColor="magenta"
+          paddingX={3}
+          paddingY={1}
+          width={contentWidth}
+        >
+          <Box marginBottom={1}>
+          </Box>
+          {SYNEX_LOGO.map((line, index) => {
+            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD'];
+            const colorIndex = index % colors.length;
+            return (
+              <Text key={index} color={colors[colorIndex]} bold>
+                {line}
+              </Text>
+            );
+          })}
+          <Box marginTop={1}>
+            <Text color="yellow" dimColor> Powered by Advanced AI Technology </Text>
+          </Box>
+        </Box>
 
-      {/* Logo */}
-      <Box flexDirection="column" alignItems="center" marginBottom={3}>
-        {SYNEX_LOGO.map((line, index) => {
-          const colors = ['#00FFFF', '#00CED1', '#1E90FF'];
-          const colorIndex = index % colors.length;
-          return (
-            <Text key={index} color={colors[colorIndex]} bold>
-              {line}
-            </Text>
-          );
-        })}
-      </Box>
 
-      {/* Description */}
-      <Box marginBottom={3}>
-        <Text dimColor>
-          AI tool for code review, analysis and smart automation.
-        </Text>
-      </Box>
-
-      {/* Menu Title */}
-      <Box marginBottom={1}>
-        <Text color="cyan">
-          Select login method:
-        </Text>
-      </Box>
-
-      {/* Menu Options */}
-      <Box flexDirection="column" alignItems="center" marginBottom={2}>
-        {menuOptions.map((option, index) => {
-          const isSelected = index === selectedIndex;
-          return (
-            <Box key={index} marginBottom={1} paddingX={2}>
-              <Box flexDirection="row" alignItems="center">
-                <Text color={isSelected ? 'cyan' : 'white'}>
-                  {isSelected ? '❯ ' : '  '}
-                </Text>
-                <Text color={isSelected ? 'cyan' : 'white'} bold={isSelected}>
-                  {option.title}
-                </Text>
-                <Text dimColor> ({option.description})</Text>
-              </Box>
+        {/* Enhanced Authentication Section */}
+        <Box
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          borderStyle="round"
+          borderColor="blueBright"
+          paddingX={4}
+          paddingY={1}
+          marginBottom={2}
+          width={contentWidth}
+        >
+          <Box flexDirection="column" alignItems="center" justifyContent="center">
+            <Box marginBottom={1} width="100%" justifyContent="center">
+              <Text color="cyan" bold>Choose Your Authentication Method</Text>
             </Box>
-          );
-        })}
-      </Box>
 
-      {/* Instructions */}
-      <Box marginTop={2}>
-        <Text dimColor>
-          Use arrow keys to navigate, Enter to select, Ctrl+C to exit
-        </Text>
+            {menuOptions.map((option, index) => {
+              const isSelected = index === selectedIndex;
+              return (
+                <Box
+                  key={index}
+                  flexDirection="column"
+                  alignItems="center"
+                  marginBottom={1}
+                  width="100%"
+                >
+                  <Box width="100%" justifyContent="center">
+                    <Text color={isSelected ? 'magenta' : 'cyan'} bold={isSelected}>
+                      {`${isSelected ? '> ' : '  '}${option.title}`}
+                    </Text>
+                  </Box>
+                  <Box width="100%" justifyContent="center">
+                    <Text color={isSelected ? 'yellow' : 'gray'} dimColor={!isSelected}>
+                      {option.description}
+                    </Text>
+                  </Box>
+                </Box>
+              );
+            })}
+
+            <Box marginTop={1} width="100%" justifyContent="center">
+              <Text color="gray" dimColor>Use ↑↓ arrows to navigate, Enter to select</Text>
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Enhanced Status Bar */}
+
       </Box>
     </Box>
   );
